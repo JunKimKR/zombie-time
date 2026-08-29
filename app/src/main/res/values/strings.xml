@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">좀비타임</string>
+    <string name="channel_status_name">좀비 현황</string>
+    <string name="channel_status_desc">캐릭터 상태와 오늘 SNS 사용시간을 상시로 보여줍니다.</string>
+    <string name="channel_alert_name">단계 변화 알림</string>
+    <string name="channel_alert_desc">인간에서 좀비로 단계가 넘어갈 때 알려줍니다.</string>
+    <string name="channel_briefing_name">하루 브리핑</string>
+    <string name="channel_briefing_desc">하루가 끝나면 오늘의 브리핑 카드를 보내줍니다.</string>
+</resources>
