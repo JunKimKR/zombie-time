@@ -40,7 +40,7 @@ Android Studio에서 프로젝트를 열거나 JDK 17과 Android SDK 36 환경�
 
 AGP 8.10.1 / Gradle 8.11.1을 사용합니다. GitHub Actions의 `zombietime-preview` 아티팩트에는
 설치용 debug APK와 서명 전 release AAB가 포함됩니다. release에 debug 키를 사용하지 않으며,
-Play 제출 전 production 업로드 키로 별도 서명해야 합니다. main 빌드 성공 시 `v1.1.0-preview.1` 테스트 릴리스를 한 번 게시합니다.
+Play 제출 전 production 업로드 키로 별도 서명해야 합니다. main 빌드 성공 시 `v1.2.0-preview.1` 테스트 릴리스를 한 번 게시합니다.
 
 ---
 
@@ -116,3 +116,10 @@ Play 제출에는 별도 production 서명과 Console 설정이 필요합니다.
 
 테스트 APK는 `com.zombietime.app.preview` / **좀비타임 테스트**로 별도 설치됩니다.
 설치와 테스트 항목: [TEST_RELEASE.md](docs/TEST_RELEASE.md)
+
+## 1.2 캐릭터 업데이트
+
+캐릭터를 터치하면 웃기·놀라기·윙크 표정과 점프, 반짝임, 짧은 목소리로 반응합니다.
+홈의 소리 버튼으로 음소거 상태를 저장하고, 무음/진동 모드에서는 소리를 내지 않습니다.
+설치된 SNS의 앱 아이콘을 우선 표시하며, 미설치 시 브랜드 벡터를 사용합니다.
+Android 에뮬레이터에서 터치 반응·음소거 저장·로고·큰 글꼴을 검사하고 스크린샷을 CI에 보관합니다.

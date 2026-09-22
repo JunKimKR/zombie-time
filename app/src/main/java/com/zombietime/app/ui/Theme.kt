@@ -7,21 +7,21 @@ import androidx.compose.ui.graphics.Color
 
 /** 진한 파스텔 팔레트 */
 object Pastel {
-    val Bg = Color(0xFFFFF4EC)
-    val BgAlt = Color(0xFFFBEFF6)
+    val Bg = Color(0xFFF6F5FC)
+    val BgAlt = Color(0xFFEEEAF8)
     val Card = Color(0xFFFFFFFF)
-    val Primary = Color(0xFF8B7BE8)
-    val PrimarySoft = Color(0xFFEDE7FF)
-    val Pink = Color(0xFFFF8FA9)
+    val Primary = Color(0xFF6554C0)
+    val PrimarySoft = Color(0xFFEBE7FA)
+    val Pink = Color(0xFFCC5576)
     val PinkSoft = Color(0xFFFFE1E9)
-    val Mint = Color(0xFF4CC7A8)
+    val Mint = Color(0xFF287B63)
     val MintSoft = Color(0xFFD7F5EC)
     val Lemon = Color(0xFFFFC96B)
     val Zombie = Color(0xFF6FBF7E)
-    val Ink = Color(0xFF443C5E)
-    val InkSoft = Color(0xFF8B82A6)
-    val InkFaint = Color(0xFFC3BCD6)
-    val Line = Color(0xFFF1ECF8)
+    val Ink = Color(0xFF292744)
+    val InkSoft = Color(0xFF716A85)
+    val InkFaint = Color(0xFF80768E)
+    val Line = Color(0xFFEEEBF4)
 }
 
 private val scheme = lightColorScheme(

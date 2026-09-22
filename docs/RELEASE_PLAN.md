@@ -6,7 +6,7 @@
 - 무료 씨앗(5분당 1개), 연속 휴식일, 누적 시간, 1/5/20회 배지, 복숭아/숲/달빛 배경.
 - 씨앗과 구매 통화는 별개. 현재 네트워크·실제 결제·광고 SDK 없음. SNS 기록을 지우거나 줄이지 않음.
 - API 36, AGP 8.10.1, Gradle 8.11.1. 시스템 바 안전 영역 적용.
-- CI: 단위 테스트, lint, 설치 가능한 debug APK, 서명 전 release AAB. main 빌드 성공 시 v1.1.0-preview.1 테스트 릴리스를 한 번 게시. 기존 태그와 파일은 덮어쓰지 않음.
+- CI: 단위 테스트, lint, 설치 가능한 debug APK, 서명 전 release AAB. main 빌드 성공 시 v1.2.0-preview.1 테스트 릴리스를 한 번 게시. 기존 태그와 파일은 덮어쓰지 않음.
 
 ## Play 제출 전 남은 작업
 1. Play Console 앱 등록, applicationId 소유 확인, 업로드 키 생성 및 Play App Signing 구성. AAB는 현재 미서명이며 그대로 제출할 수 없음. 기존 debug 설치와 production 서명은 호환되지 않으므로 테스트 데이터 보존에 주의.
