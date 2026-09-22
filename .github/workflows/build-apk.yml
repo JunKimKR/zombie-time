@@ -16,6 +16,9 @@ jobs:
           distribution: temurin
           java-version: '17'
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+          log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
       - name: Test, lint and build
         run: |
@@ -33,3 +36,38 @@ jobs:
           path: |
             app/build/outputs/apk/debug/*.apk
             app/build/outputs/bundle/release/*.aab
+  preview-release:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: preview-release-v1.1.0-preview.1
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: zombietime-preview
+          path: preview-artifacts
+      - name: Publish installable preview once
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v1.1.0-preview.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Preview already published; preserving its assets."
+            exit 0
+          fi
+          mkdir -p release-assets
+          cp preview-artifacts/apk/debug/app-debug.apk release-assets/zombie-time-1.1-preview.apk
+          cd release-assets
+          sha256sum zombie-time-1.1-preview.apk > SHA256SUMS.txt
+          cd ..
+          gh release create "$TAG" release-assets/* \
+            --target "$GITHUB_SHA" --prerelease \
+            --title "좀비타임 1.1 테스트판" \
+            --notes-file docs/TEST_RELEASE.md

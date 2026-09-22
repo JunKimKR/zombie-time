@@ -13,11 +13,15 @@ android {
         targetSdk = 36
         versionCode = 2
         versionName = "1.1"
+        manifestPlaceholders["appLabel"] = "좀비타임"
     }
 
     buildTypes {
         debug {
             isMinifyEnabled = false
+            applicationIdSuffix = ".preview"
+            versionNameSuffix = "-preview"
+            manifestPlaceholders["appLabel"] = "좀비타임 테스트"
         }
         release {
             isMinifyEnabled = false
