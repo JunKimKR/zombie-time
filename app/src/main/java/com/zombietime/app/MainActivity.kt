@@ -3,6 +3,12 @@ package com.zombietime.app
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.SystemClock
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.zombietime.app.data.RecoveryStore
+import com.zombietime.app.ui.RecoveryScreen
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -55,6 +61,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         Notifications.ensureChannels(this)
         BriefingAlarm.schedule(this)
 
@@ -91,7 +98,20 @@ private fun AppRoot(openBriefingInitially: Boolean) {
     var stageAlert by remember { mutableStateOf(Prefs.stageAlertEnabled(ctx)) }
     var monitorOn by remember { mutableStateOf(Prefs.monitorEnabled(ctx)) }
 
-    var tab by remember { mutableStateOf(0) }
+    var tab by rememberSaveable { mutableStateOf(0) }
+    var recovery by remember { mutableStateOf(RecoveryStore.load(ctx)) }
+    var recoveryNow by remember { mutableStateOf(SystemClock.elapsedRealtime()) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            recoveryNow = SystemClock.elapsedRealtime()
+            val updated = recovery.complete(recoveryNow, RecoveryStore.boot(ctx), Prefs.today())
+            if (updated != recovery) {
+                RecoveryStore.save(ctx, updated)
+                recovery = updated
+            }
+            delay(1000)
+        }
+    }
     var briefingBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showBriefing by remember { mutableStateOf(false) }
 
@@ -187,6 +207,7 @@ private fun AppRoot(openBriefingInitially: Boolean) {
         Modifier
             .fillMaxSize()
             .background(Pastel.Bg)
+            .safeDrawingPadding()
     ) {
         if (!onboarded) {
             OnboardingScreen(
@@ -216,13 +237,28 @@ private fun AppRoot(openBriefingInitially: Boolean) {
                             hasUsagePermission = hasUsage,
                             monitorOn = monitorOn,
                             onRequestUsagePermission = { openUsageSettings() },
-                            onShareBriefing = { buildBriefing() }
+                            onShareBriefing = { buildBriefing() },
+                            garden = recovery.garden,
+                            onRecovery = { tab = 2 }
                         )
 
                         1 -> WeeklyScreen(
                             week = week,
                             month = month,
                             goalMinutes = goalMinutes
+                        )
+
+                        2 -> RecoveryScreen(
+                            state = recovery, now = recoveryNow,
+                            onStart = { recovery = RecoveryStore.start(ctx, recovery, it) },
+                            onCancel = {
+                                recovery = recovery.copy(durationMinutes = 0)
+                                RecoveryStore.save(ctx, recovery)
+                            },
+                            onGarden = {
+                                recovery = recovery.selectGarden(it)
+                                RecoveryStore.save(ctx, recovery)
+                            }
                         )
 
                         else -> SettingsScreen(

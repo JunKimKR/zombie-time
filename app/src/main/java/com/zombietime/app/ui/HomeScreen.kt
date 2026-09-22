@@ -36,7 +36,9 @@ fun HomeScreen(
     hasUsagePermission: Boolean,
     monitorOn: Boolean,
     onRequestUsagePermission: () -> Unit,
-    onShareBriefing: () -> Unit
+    onShareBriefing: () -> Unit,
+    garden: String = "peach",
+    onRecovery: () -> Unit = {}
 ) {
     val goalMs = goalMinutes * 60_000L
     val progress = ZombieStages.progress(usage.totalMs, goalMs)
@@ -61,7 +63,7 @@ fun HomeScreen(
                 .clip(RoundedCornerShape(30.dp))
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color.White, stageColor(progress).copy(alpha = 0.13f))
+                        listOf(Color.White, gardenColor(garden))
                     )
                 )
                 .padding(20.dp)
@@ -115,6 +117,13 @@ fun HomeScreen(
                 value = if (remain > 0) TimeFmt.human(remain) else "+" + TimeFmt.human(usage.totalMs - goalMs),
                 accent = if (remain > 0) Pastel.Mint else Pastel.Pink
             )
+        }
+
+        SoftCard(Modifier.fillMaxWidth(), color = Pastel.MintSoft) {
+            SectionTitle("🌿  오늘의 작은 회복")
+            Text("5분만 쉬어볼까요? 씨앗을 모아 나만의 쉼터를 꾸며요.", color = Pastel.InkSoft, fontSize = 13.sp)
+            Spacer(Modifier.height(10.dp))
+            GhostButton("쉼터로 가기 →", Modifier.fillMaxWidth(), onClick = onRecovery)
         }
 
         // ------------------------------------------------------------- 앱별 상세

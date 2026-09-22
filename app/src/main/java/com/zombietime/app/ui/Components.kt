@@ -26,6 +26,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.spring
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -115,26 +124,22 @@ fun CharacterCanvas(
     modifier: Modifier = Modifier,
     animate: Boolean = true
 ) {
-    val transition = rememberInfiniteTransition(label = "bob")
-    val phase by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3400, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "phase"
-    )
+    val phase = if (animate) characterPhase() else 0f
+    val morph by animateFloatAsState(progress, tween(900), label = "morph")
     Canvas(modifier) {
         drawIntoCanvas { canvas ->
-            CharacterRenderer.draw(
-                canvas.nativeCanvas,
-                android.graphics.RectF(0f, 0f, size.width, size.height),
-                progress,
-                if (animate) phase else 0f
-            )
+            CharacterRenderer.draw(canvas.nativeCanvas,
+                android.graphics.RectF(0f, 0f, size.width, size.height), morph, phase)
         }
     }
+}
+
+@Composable
+private fun characterPhase(): Float {
+    val transition = rememberInfiniteTransition(label = "bob")
+    val phase by transition.animateFloat(0f, 1f,
+        infiniteRepeatable(tween(3400, easing = LinearEasing), RepeatMode.Restart), label = "phase")
+    return phase
 }
 
 /** 진행 링 + 캐릭터 */
@@ -149,8 +154,18 @@ fun ZombieHero(
         label = "progress"
     )
     val ringColor = stageColor(progress)
+    val bounce = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
 
-    Box(modifier = modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.aspectRatio(1f)
+        .semantics { contentDescription = "좀비 캐릭터, 눌러서 인사하기" }
+        .clickable(role = Role.Button, onClickLabel = "캐릭터와 인사") {
+            scope.launch {
+                bounce.animateTo(0.91f, tween(90))
+                bounce.animateTo(1f, spring(dampingRatio = 0.35f))
+            }
+        }
+        .graphicsLayer { scaleX = bounce.value; scaleY = bounce.value }, contentAlignment = Alignment.Center) {
         Canvas(Modifier.fillMaxSize()) {
             val stroke = size.minDimension * 0.045f
             val inset = stroke / 2f + size.minDimension * 0.01f
@@ -225,7 +240,7 @@ fun BottomTabs(
     onSelect: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val items = listOf("🏠  홈", "📅  주간", "⚙️  설정")
+    val items = listOf("🏠 홈", "📅 주간", "🌿 쉼터", "⚙️ 설정")
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(26.dp))

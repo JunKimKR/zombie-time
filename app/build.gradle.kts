@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.zombietime.app"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.zombietime.app"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        targetSdk = 36
+        versionCode = 2
+        versionName = "1.1"
     }
 
     buildTypes {
@@ -26,8 +26,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Release 빌드도 debug 키로 서명해서 CI 산출물이 바로 설치 가능하도록 함.
-            signingConfig = signingConfigs.getByName("debug")
+            // Production signing is supplied separately; never ship a debug key as release.
         }
     }
 
@@ -56,6 +55,8 @@ android {
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+    implementation("androidx.compose.animation:animation")
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")

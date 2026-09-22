@@ -30,32 +30,17 @@ SNS를 볼수록 귀여운 캐릭터가 좀비로 변해가는 안드로이드 �
 
 ---
 
-## APK 만들기 (GitHub Actions)
+## 빌드 및 설치
 
-1. GitHub에서 **새 저장소**를 만듭니다 (private 도 됩니다).
-2. 이 폴더 전체를 그 저장소에 올립니다.
+Android Studio에서 프로젝트를 열거나 JDK 17과 Android SDK 36 환경에서 실행합니다.
 
 ```bash
-cd zombietime
-git init
-git add .
-git commit -m "좀비타임 첫 커밋"
-git branch -M main
-git remote add origin https://github.com/<본인아이디>/<저장소이름>.git
-git push -u origin main
+./gradlew testDebugUnitTest lintDebug assembleDebug bundleRelease
 ```
 
-3. push 하면 **Actions** 탭에서 `Build APK` 워크플로가 자동으로 돕니다 (약 5~8분).
-4. 끝나면 두 곳 중 편한 데서 받으면 됩니다.
-   - **Releases → `latest`** → `zombietime-release.apk` (폰 브라우저로 바로 받기 좋음)
-   - Actions 실행 화면 맨 아래 **Artifacts → zombietime-apk**
-
-> 디버그 키로 서명된 APK라서 설치할 때 "출처를 알 수 없는 앱" 허용이 한 번 필요합니다.
-> Play 스토어에 올리려면 별도 릴리스 키스토어로 서명해야 합니다.
-
-### Android Studio 로 여는 경우
-
-그냥 이 폴더를 열고 Run 하면 됩니다. (JDK 17, AGP 8.5.2, Gradle 8.9)
+AGP 8.10.1 / Gradle 8.11.1을 사용합니다. GitHub Actions의 `zombietime-preview` 아티팩트에는
+설치용 debug APK와 서명 전 release AAB가 포함됩니다. release에 debug 키를 사용하지 않으며,
+Play 제출 전 production 업로드 키로 별도 서명해야 합니다. 자동 공개 배포는 하지 않습니다.
 
 ---
 
@@ -116,3 +101,15 @@ app/src/main/java/com/zombietime/app/
 
 모든 사용 기록은 기기 내 `SharedPreferences` 에만 저장됩니다.
 네트워크 권한 자체가 없어서 어디로도 전송되지 않습니다.
+
+## 1.1 회복 업데이트
+
+홈에서 캐릭터를 눌러 인사하고, 새 **쉼터** 탭에서 5·15·25분 쉬어보세요.
+완료할 때마다 무료 씨앗을 모아 숲/달빛 배경을 열 수 있습니다. 누적 휴식과 연속 기록,
+배지도 기기에 저장됩니다. 자율 타이머이며 다른 앱을 차단하거나 SNS 기록을 줄이지 않습니다.
+
+빌드 환경은 **JDK 17 / AGP 8.10.1 / Gradle 8.11.1 / Android SDK 36**입니다.
+Actions의 `zombietime-preview`에서 테스트용 debug APK와 **미서명** release AAB를 받습니다.
+기존 `latest` 자동 배포와 debug 키 release 서명은 중단했습니다.
+Play 제출에는 별도 production 서명과 Console 설정이 필요합니다.
+세부 출시/결제 계획과 기기 테스트 항목은 [RELEASE_PLAN.md](docs/RELEASE_PLAN.md)를 참고하세요.
