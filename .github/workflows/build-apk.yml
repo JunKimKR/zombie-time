@@ -64,8 +64,7 @@ jobs:
           profile: pixel_5
           disable-animations: false
           script: |
-            ./gradlew connectedDebugAndroidTest --no-daemon
-            adb pull /sdcard/Android/data/com.zombietime.app.preview/files/screenshots ui-screenshots
+            ./gradlew connectedDebugAndroidTest --no-daemon; test_result=$?; adb pull /data/local/tmp/zombie-ui ui-screenshots || exit $?; exit "$test_result"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

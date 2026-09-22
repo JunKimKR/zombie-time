@@ -10,7 +10,6 @@ import androidx.test.uiautomator.Until
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
 @RunWith(AndroidJUnit4::class)
 class CharacterInteractionTest {
@@ -23,8 +22,13 @@ class CharacterInteractionTest {
             .putBoolean("monitor_on", false).commit()
         ctx.getSharedPreferences("character", 0).edit().putBoolean("sound", true).commit()
         device.executeShellCommand("appops set ${ctx.packageName} GET_USAGE_STATS allow")
-        val dir = File(ctx.getExternalFilesDir(null), "screenshots").apply { mkdirs() }
-        fun screenshot(name: String) { assertTrue(device.takeScreenshot(File(dir, "$name.png"))) }
+        // AGP uninstalls the target after testing, so keep captures outside app storage.
+        device.executeShellCommand("mkdir -p /data/local/tmp/zombie-ui")
+        fun screenshot(name: String) {
+            val path = "/data/local/tmp/zombie-ui/$name.png"
+            device.executeShellCommand("screencap -p $path")
+            assertTrue(device.executeShellCommand("ls -l $path").contains("$name.png"))
+        }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             assertTrue(device.wait(Until.hasObject(By.text("소리 켜짐")), 15000))
             Thread.sleep(800)
