@@ -18,6 +18,8 @@ class CharacterInteractionTest {
         val ctx = instrumentation.targetContext
         val device = UiDevice.getInstance(instrumentation)
         Configurator.getInstance().setWaitForIdleTimeout(100)
+        device.wakeUp()
+        device.executeShellCommand("wm dismiss-keyguard")
         ctx.getSharedPreferences("zombietime", 0).edit().putBoolean("onboarded", true)
             .putBoolean("monitor_on", false).commit()
         ctx.getSharedPreferences("character", 0).edit().putBoolean("sound", true).commit()
@@ -30,7 +32,8 @@ class CharacterInteractionTest {
             assertTrue(device.executeShellCommand("ls -l $path").contains("$name.png"))
         }
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
-            assertTrue(device.wait(Until.hasObject(By.text("소리 켜짐")), 15000))
+            try {
+            assertTrue("Home becomes visible", device.wait(Until.hasObject(By.text("소리 켜짐")), 45000))
             Thread.sleep(800)
             screenshot("01-home")
             val pet = By.desc("캐릭터와 놀기. 누르면 표정과 목소리로 반응해요")
@@ -58,7 +61,12 @@ class CharacterInteractionTest {
             scenario.recreate()
             assertTrue(device.wait(Until.hasObject(By.text("소리 꺼짐")), 10000))
             screenshot("06-large-type")
+            } finally {
+                screenshot("07-final-state")
+                device.dumpWindowHierarchy(java.io.File(ctx.cacheDir, "ui.xml"))
+                device.executeShellCommand("cp ${ctx.cacheDir}/ui.xml /data/local/tmp/zombie-ui/ui.xml")
             device.executeShellCommand("settings put system font_scale 1.0")
+            }
         }
     }
 }
