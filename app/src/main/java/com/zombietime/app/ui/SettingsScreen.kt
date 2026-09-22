@@ -199,7 +199,7 @@ fun SettingsScreen(
         }
 
         SoftCard(Modifier.fillMaxWidth()) {
-            Text("좀비타임 v1.1", color = Pastel.Ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            Text("좀비타임 v1.2", color = Pastel.Ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(6.dp))
             Text(
                 "인스타그램 · 스레드 · 페이스북 · 유튜브의 화면에 실제로 떠 있던 시간만 더해요. " +
@@ -209,6 +209,7 @@ fun SettingsScreen(
             )
         }
 
+        Text("브랜드 아이콘: Font Awesome Free · CC BY 4.0", color = Pastel.InkSoft, fontSize = 10.sp)
         Spacer(Modifier.height(4.dp))
     }
 }

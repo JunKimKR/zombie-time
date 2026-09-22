@@ -24,6 +24,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.animation.core.Animatable
@@ -82,7 +88,7 @@ fun SectionTitle(text: String, modifier: Modifier = Modifier) {
 fun PillButton(
     text: String,
     modifier: Modifier = Modifier,
-    background: Brush = Brush.horizontalGradient(listOf(Pastel.Pink, Pastel.Primary)),
+    background: Brush = Brush.horizontalGradient(listOf(Pastel.Primary, Pastel.Primary)),
     textColor: Color = Color.White,
     enabled: Boolean = true,
     onClick: () -> Unit
@@ -122,14 +128,16 @@ fun GhostButton(
 fun CharacterCanvas(
     progress: Float,
     modifier: Modifier = Modifier,
-    animate: Boolean = true
+    animate: Boolean = true,
+    reaction: Float = 0f,
+    reactionType: Int = 0
 ) {
     val phase = if (animate) characterPhase() else 0f
     val morph by animateFloatAsState(progress, tween(900), label = "morph")
     Canvas(modifier) {
         drawIntoCanvas { canvas ->
             CharacterRenderer.draw(canvas.nativeCanvas,
-                android.graphics.RectF(0f, 0f, size.width, size.height), morph, phase)
+                android.graphics.RectF(0f, 0f, size.width, size.height), morph, phase, reaction, reactionType)
         }
     }
 }
@@ -140,69 +148,6 @@ private fun characterPhase(): Float {
     val phase by transition.animateFloat(0f, 1f,
         infiniteRepeatable(tween(3400, easing = LinearEasing), RepeatMode.Restart), label = "phase")
     return phase
-}
-
-/** 진행 링 + 캐릭터 */
-@Composable
-fun ZombieHero(
-    progress: Float,
-    modifier: Modifier = Modifier
-) {
-    val animated by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = tween(900),
-        label = "progress"
-    )
-    val ringColor = stageColor(progress)
-    val bounce = remember { Animatable(1f) }
-    val scope = rememberCoroutineScope()
-
-    Box(modifier = modifier.aspectRatio(1f)
-        .semantics { contentDescription = "좀비 캐릭터, 눌러서 인사하기" }
-        .clickable(role = Role.Button, onClickLabel = "캐릭터와 인사") {
-            scope.launch {
-                bounce.animateTo(0.91f, tween(90))
-                bounce.animateTo(1f, spring(dampingRatio = 0.35f))
-            }
-        }
-        .graphicsLayer { scaleX = bounce.value; scaleY = bounce.value }, contentAlignment = Alignment.Center) {
-        Canvas(Modifier.fillMaxSize()) {
-            val stroke = size.minDimension * 0.045f
-            val inset = stroke / 2f + size.minDimension * 0.01f
-            drawArc(
-                color = Pastel.Line,
-                startAngle = 130f,
-                sweepAngle = 280f,
-                useCenter = false,
-                topLeft = androidx.compose.ui.geometry.Offset(inset, inset),
-                size = androidx.compose.ui.geometry.Size(
-                    size.width - inset * 2,
-                    size.height - inset * 2
-                ),
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
-            drawArc(
-                brush = Brush.sweepGradient(
-                    listOf(Pastel.Pink, Pastel.Lemon, ringColor, ringColor)
-                ),
-                startAngle = 130f,
-                sweepAngle = 280f * animated.coerceIn(0f, 1f),
-                useCenter = false,
-                topLeft = androidx.compose.ui.geometry.Offset(inset, inset),
-                size = androidx.compose.ui.geometry.Size(
-                    size.width - inset * 2,
-                    size.height - inset * 2
-                ),
-                style = Stroke(width = stroke, cap = StrokeCap.Round)
-            )
-        }
-        CharacterCanvas(
-            progress = progress,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(26.dp)
-        )
-    }
 }
 
 /** 가로 막대 (앱별 사용시간) */
@@ -235,49 +180,17 @@ fun UsageBar(
 }
 
 @Composable
-fun BottomTabs(
-    selected: Int,
-    onSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val items = listOf("🏠 홈", "📅 주간", "🌿 쉼터", "⚙️ 설정")
-    Row(
-        modifier = modifier
-            .clip(RoundedCornerShape(26.dp))
-            .background(Color.White)
-            .padding(6.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        items.forEachIndexed { index, label ->
-            TabItem(
-                label = label,
-                selected = selected == index,
-                modifier = Modifier.weight(1f)
-            ) { onSelect(index) }
+fun BottomTabs(selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val icons = listOf(Icons.Default.Home, Icons.Default.DateRange, Icons.Default.Favorite, Icons.Default.Settings)
+    val labels = listOf("오늘", "기록", "쉼터", "설정")
+    NavigationBar(modifier.clip(RoundedCornerShape(28.dp)), containerColor = Color.White, tonalElevation = 0.dp) {
+        labels.forEachIndexed { index, label ->
+            NavigationBarItem(selected = selected == index, onClick = { onSelect(index) },
+                icon = { Icon(icons[index], contentDescription = null) },
+                label = { Text(label, fontWeight = if (selected == index) FontWeight.Bold else FontWeight.Normal) },
+                colors = NavigationBarItemDefaults.colors(selectedIconColor = Pastel.Primary,
+                    selectedTextColor = Pastel.Primary, indicatorColor = Pastel.PrimarySoft,
+                    unselectedIconColor = Pastel.InkSoft, unselectedTextColor = Pastel.InkSoft))
         }
-    }
-}
-
-@Composable
-private fun RowScope.TabItem(
-    label: String,
-    selected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(if (selected) Pastel.PrimarySoft else Color.Transparent)
-            .clickable { onClick() }
-            .padding(PaddingValues(vertical = 12.dp)),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            label,
-            color = if (selected) Pastel.Primary else Pastel.InkSoft,
-            fontSize = 13.sp,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
-        )
     }
 }

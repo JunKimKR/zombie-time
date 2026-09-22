@@ -179,7 +179,7 @@ fun WeeklyScreen(
                 if (i > 0) Spacer(Modifier.height(12.dp))
                 val ms = totals[app.pkg] ?: 0L
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(app.emoji, fontSize = 17.sp)
+                    AppIdentity(app, size = 32.dp)
                     Spacer(Modifier.width(8.dp))
                     Text(
                         app.label,

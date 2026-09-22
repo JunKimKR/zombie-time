@@ -23,7 +23,7 @@ import java.util.Locale
 fun gardenColor(id: String): Color = when (id) {
     "forest" -> Color(0xFFD7F5EC)
     "moon" -> Color(0xFFE3E1FF)
-    else -> Color(0xFFFFE7D7)
+    else -> Color(0xFFF4E4DD)
 }
 
 @Composable
@@ -89,7 +89,7 @@ fun RecoveryScreen(
         SoftCard(Modifier.fillMaxWidth()) {
             SectionTitle("쉼터 꾸미기")
             Text("휴식으로 모은 씨앗으로 홈과 쉼터 배경을 바꿔요.", fontSize = 12.sp, color = Pastel.InkSoft)
-            listOf(Triple("peach", "🍑 복숭아 정원", 0), Triple("forest", "🌿 초록 숲", 6), Triple("moon", "🌙 달빛 정원", 12)).forEach { (id, name, cost) ->
+            listOf(Triple("peach", "복숭아 정원", 0), Triple("forest", "초록 숲", 6), Triple("moon", "달빛 정원", 12)).forEach { (id, name, cost) ->
                 Spacer(Modifier.height(10.dp))
                 PillButton(
                     text = "$name · ${if (state.garden == id) "사용 중" else if (id in state.unlocked) "적용" else "씨앗 ${cost}개"}",

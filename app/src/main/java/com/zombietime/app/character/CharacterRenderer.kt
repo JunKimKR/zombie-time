@@ -98,7 +98,7 @@ object CharacterRenderer {
      * @param bobPhase 0~1. 살짝 위아래로 떠다니는 애니메이션 위상.
      */
     @Synchronized
-    fun draw(canvas: Canvas, bounds: RectF, p: Float, bobPhase: Float = 0f) {
+    fun draw(canvas: Canvas, bounds: RectF, p: Float, bobPhase: Float = 0f, reaction: Float = 0f, reactionType: Int = 0) {
         val s = min(bounds.width(), bounds.height()) / UNIT
         canvas.save()
         canvas.translate(
@@ -106,7 +106,7 @@ object CharacterRenderer {
             bounds.centerY() - UNIT * s / 2f
         )
         canvas.scale(s, s)
-        drawUnit(canvas, clamp01(p), bobPhase)
+        drawUnit(canvas, clamp01(p), bobPhase, reaction, reactionType)
         canvas.restore()
     }
 
@@ -121,7 +121,7 @@ object CharacterRenderer {
 
     // ------------------------------------------------------------- 실제 드로잉
 
-    private fun drawUnit(canvas: Canvas, p: Float, bobPhase: Float) {
+    private fun drawUnit(canvas: Canvas, p: Float, bobPhase: Float, reaction: Float, reactionType: Int) {
         val skin = skinColor(p)
         val skinShade = darken(skin, 0.90f)
         val zombie = ramp(0.45f, 1f, p)          // 좀비스러움 정도
@@ -129,18 +129,23 @@ object CharacterRenderer {
         val bob = kotlin.math.sin(bobPhase * 6.2831853f) * 2.2f
 
         canvas.save()
-        canvas.translate(0f, bob)
+        val energy = kotlin.math.sin(reaction * Math.PI).toFloat().coerceAtLeast(0f)
+        val wiggle = kotlin.math.sin(reaction * Math.PI * 6).toFloat() * energy
+        drawShadow(canvas)
+        canvas.translate(0f, bob - energy * 15f)
+        canvas.rotate(wiggle * 9f, 100f, 155f)
+        canvas.scale(1f + energy * 0.07f, 1f - energy * 0.035f, 100f, 160f)
 
         // 좀비가 될수록 고개를 살짝 기울인다
         val tilt = lerp(0f, 7f, zombie)
         canvas.save()
         canvas.rotate(tilt, 100f, 150f)
 
-        drawShadow(canvas)
-        drawArms(canvas, skinShade, ramp(0.50f, 1.0f, p))
+        drawArms(canvas, skinShade, max(ramp(0.50f, 1.0f, p), energy * (0.82f + wiggle * 0.18f)))
         drawBody(canvas, skin, skinShade, p, zombie)
         drawHead(canvas, skin, skinShade, p, zombie)
-        drawFace(canvas, skin, p, zombie, tired)
+        if (reaction > 0.08f) drawReactionFace(canvas, reactionType)
+        else drawFace(canvas, skin, p, zombie, tired)
         drawExtras(canvas, p, zombie)
 
         canvas.restore()
@@ -277,6 +282,37 @@ object CharacterRenderer {
         }
 
         drawMouth(canvas, p, zombie)
+    }
+
+    /** Distinct expressions are drawn on the character, never on its touch bounds. */
+    private fun drawReactionFace(canvas: Canvas, kind: Int) {
+        paint.style = Paint.Style.FILL
+        paint.color = withAlpha(BLUSH, 0.8f)
+        canvas.drawOval(55f, 95f, 76f, 108f, paint)
+        canvas.drawOval(126f, 95f, 147f, 108f, paint)
+        strokePaint.style = Paint.Style.STROKE
+        strokePaint.strokeWidth = 4.5f
+        strokePaint.color = EYE_DARK
+        for (x in listOf(80f, 122f)) {
+            if (kind == 0 || (kind == 2 && x == 122f)) {
+                canvas.drawArc(x - 10f, 78f, x + 10f, 93f, 195f, 150f, false, strokePaint)
+            } else {
+                paint.color = Color.WHITE
+                canvas.drawOval(x - 13f, 66f, x + 13f, 96f, paint)
+                paint.color = EYE_DARK
+                canvas.drawOval(x - 7f, 72f, x + 7f, 94f, paint)
+                paint.color = Color.WHITE
+                canvas.drawCircle(x + 3f, 76f, 3f, paint)
+            }
+        }
+        paint.color = 0xFF592E4F.toInt()
+        if (kind == 1) {
+            canvas.drawOval(93f, 105f, 107f, 123f, paint)
+        } else {
+            canvas.drawArc(86f, 102f, 114f, 126f, 0f, 180f, true, paint)
+            paint.color = BLUSH
+            canvas.drawOval(94f, 115f, 106f, 124f, paint)
+        }
     }
 
     private fun drawX(canvas: Canvas, cx: Float, cy: Float, r: Float) {
